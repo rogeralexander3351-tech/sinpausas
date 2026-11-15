@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora Sin Pausas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0F2240;--tq:#0B8F84;--tq2:#2ED3C0;--gold:#B08D3E;--mute:#5B6B82;--line:#E2E7EE;--bg:#FFFFFF;--soft:#F4F7FA;--card:#FFFFFF}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ink:#EAF0F7;--mute:#9AA8BC;--line:#26364F;--bg:#0B1628;--soft:#111F36;--card:#14243D;--tq:#2ED3C0;color-scheme:dark}}
+:root[data-theme="dark"]{--ink:#EAF0F7;--mute:#9AA8BC;--line:#26364F;--bg:#0B1628;--soft:#111F36;--card:#14243D;--tq:#2ED3C0;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:620px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.err{color:#C0392B;font-weight:600;font-size:14px}
+.go:focus-visible,.seg button:focus-visible,.wa:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.kicker{font:700 12px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);border-bottom:2px solid var(--gold);display:inline-block;padding-bottom:4px}
+h1{font:900 clamp(30px,8vw,44px)/1 Archivo,sans-serif;letter-spacing:-.02em;margin:14px 0 10px;text-transform:uppercase}
+h1 span{color:var(--tq)}
+.lead{color:var(--mute);margin-bottom:24px}
+form{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:20px;display:grid;gap:16px}
+label{font-weight:600;font-size:14px;display:block;margin-bottom:6px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+input,select{width:100%;font:500 16px Inter;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--tq)}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}
+.seg button{flex:1;border:0;background:transparent;color:var(--ink);font:600 14px Inter;padding:11px 6px;cursor:pointer}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.unit{display:flex;gap:8px}
+.unit input{flex:1}
+.hint{font-size:12px;color:var(--mute);margin-top:4px}
+.go{background:var(--tq);color:#fff;border:0;border-radius:12px;font:800 17px Archivo;padding:16px;cursor:pointer;letter-spacing:.02em;text-transform:uppercase}
+.go:hover{filter:brightness(1.08)}
+#res{margin-top:28px}
+.big{border:2px solid var(--ink);border-radius:16px;padding:22px;text-align:center;margin-bottom:16px}
+.big small{display:block;font:700 12px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.big b{display:block;font:900 54px/1.05 Archivo;color:var(--tq);margin:6px 0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.m{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:14px 8px;text-align:center}
+.m b{display:block;font:800 24px Archivo}
+.m span{font-size:12px;color:var(--mute)}
+.m.p b{color:var(--tq)}
+.list{border-top:1px solid var(--line)}
+.list div{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
+.list div span:last-child{font-weight:700;text-align:right}
+.plate{margin:20px 0;padding:18px;border-left:4px solid var(--gold);background:var(--soft);border-radius:0 12px 12px 0}
+.plate h3{font:800 18px Archivo;margin-bottom:8px}
+.plate ul{padding-left:18px;color:var(--ink)}
+.plate li{margin:4px 0}
+.cta{margin-top:24px;border:2px solid var(--tq);border-radius:16px;padding:20px}
+.cta h3{font:800 21px/1.2 Archivo;margin-bottom:6px}
+.cta p{color:var(--mute);margin-bottom:14px}
+.wa{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--tq);color:#fff;text-decoration:none;font:800 16px Archivo;padding:15px;border-radius:12px;text-transform:uppercase}
+.legal{font-size:12px;color:var(--mute);margin-top:22px}
+.foot{margin-top:30px;padding-top:16px;border-top:2px solid var(--gold);display:flex;justify-content:space-between;align-items:end;gap:10px}
+.foot b{font:800 20px Archivo}
+.foot span{font-size:12px;color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="kicker">Regalo · Sistema Sin Pausas</span>
+  <h1>¿Cuánto debes <span>comer</span> para tu objetivo?</h1>
+  <p class="lead">Calcula en 30 segundos tus calorías, tu proteína y el agua que necesitas al día. Sin dietas extremas: solo tus números de partida.</p>
+
+  <form id="f" onsubmit="calc(event)">
+    <div>
+      <label>Sexo</label>
+      <div class="seg" data-name="sexo"><button type="button" class="on" data-v="h">Hombre</button><button type="button" data-v="m">Mujer</button></div>
+    </div>
+    <div class="row">
+      <div><label for="edad">Edad</label><input id="edad" type="number" min="18" max="85" placeholder="38" required></div>
+      <div>
+        <label>Unidades</label>
+        <div class="seg" data-name="u"><button type="button" class="on" data-v="imp">lb / pies</button><button type="button" data-v="met">kg / cm</button></div>
+      </div>
+    </div>
+    <div class="row">
+      <div><label for="peso">Peso <span id="pu">(lb)</span></label><input id="peso" type="number" step="0.1" placeholder="190" required></div>
+      <div id="altImp"><label>Estatura</label><div class="unit"><input id="ft" type="number" placeholder="5 pies" min="4" max="7"><input id="in" type="number" placeholder="8 pulg" min="0" max="11"></div></div>
+      <div id="altMet" hidden><label for="cm">Estatura (cm)</label><input id="cm" type="number" placeholder="172"></div>
+    </div>
+    <div>
+      <label for="act">¿Cómo es tu semana normal?</label>
+      <select id="act">
+        <option value="1.2">Oficina y casi nada de ejercicio</option>
+        <option value="1.375" selected>Oficina + 1 a 3 entrenos por semana</option>
+        <option value="1.55">3 a 5 entrenos por semana</option>
+        <option value="1.725">6 o más entrenos, o trabajo de pie todo el día</option>
+      </select>
+    </div>
+    <div>
+      <label>Tu objetivo</label>
+      <div class="seg" data-name="obj"><button type="button" class="on" data-v="perder">Perder grasa</button><button type="button" data-v="mant">Mantener</button><button type="button" data-v="ganar">Ganar músculo</button></div>
+    </div>
+    <p class="err" id="err" hidden>Completa tu edad, tu peso y tu estatura para calcular.</p>
+    <button class="go" type="submit">Calcular mis números</button>
+  </form>
+
+  <section id="res" aria-live="polite" hidden>
+    <div class="big"><small>Tu meta diaria</small><b id="kcal">—</b><span id="kcalTxt" style="color:var(--mute);font-size:14px"></span></div>
+    <div class="grid">
+      <div class="m p"><b id="pro">—</b><span>Proteína</span></div>
+      <div class="m"><b id="car">—</b><span>Carbohidratos</span></div>
+      <div class="m"><b id="gra">—</b><span>Grasas</span></div>
+    </div>
+    <div class="list">
+      <div><span>Tu gasto en reposo</span><span id="bmr"></span></div>
+      <div><span>Tu gasto total estimado</span><span id="tdee"></span></div>
+      <div><span>Agua al día (base)</span><span id="agua"></span></div>
+      <div><span>Agua extra por hora de entreno</span><span>+ 500 ml (≈ 2 vasos)</span></div>
+    </div>
+
+    <div class="plate">
+      <h3>Cómo se ve sin contar nada</h3>
+      <ul>
+        <li><b>Proteína en cada comida:</b> <span id="porc"></span></li>
+        <li><b>Mitad del plato verduras</b> en almuerzo y cena.</li>
+        <li><b>Carbohidratos alrededor del entreno</b> (antes o después): tortilla, arroz, papa, fruta.</li>
+        <li><b>Un vaso de agua</b> al despertar y antes de cada comida.</li>
+      </ul>
+    </div>
+
+    <div class="cta">
+      <h3>¿Ya tienes tus números? Ahora falta sostenerlos.</h3>
+      <p>Saber cuánto comer es el 20 %. El 80 % es hacerlo funcionar con tu agenda real. Escríbeme y te digo cómo aplicarlo a tu semana.</p>
+      <a class="wa" id="wa" href="https://wa.me/50242125447" target="_blank" rel="noopener">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.3 0 .5l-.4.6-.3.3c-.1.2-.3.3-.1.6.2.3.8 1.3 1.6 2 1.1 1 2 1.3 2.3 1.4.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.8.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>
+        Escríbeme por WhatsApp
+      </a>
+    </div>
+    <p class="legal">Estimación con la fórmula Mifflin-St Jeor. Es un punto de partida, no una indicación médica. Si estás embarazada, en lactancia, tienes diabetes, enfermedad renal o cardíaca, o tomas medicamentos, consulta a tu médico antes de cambiar tu alimentación o tu consumo de agua.</p>
+  </section>
+
+  <div class="foot"><div><span>Te guía</span><br><b>Alexander López</b></div><span>@alexlopez.fitness</span></div>
+</div>
+<script>
+const st={sexo:'h',u:'imp',obj:'perder'};
+document.querySelectorAll('.seg').forEach(s=>s.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  s.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+  st[s.dataset.name]=b.dataset.v;
+  if(s.dataset.name==='u'){const imp=b.dataset.v==='imp';
+    document.getElementById('altImp').hidden=!imp;document.getElementById('altMet').hidden=imp;
+    document.getElementById('pu').textContent=imp?'(lb)':'(kg)';
+    document.getElementById('peso').placeholder=imp?'190':'86';}
+}));
+const n=v=>Math.round(v).toLocaleString('es');
+function calc(e){
+  e.preventDefault();
+  const edad=+edadEl().value, pesoIn=+document.getElementById('peso').value;
+  const kg=st.u==='imp'?pesoIn*0.453592:pesoIn;
+  let cm=st.u==='imp'?((+document.getElementById('ft').value||0)*12+(+document.getElementById('in').value||0))*2.54:+document.getElementById('cm').value;
+  const er=document.getElementById('err');if(!edad||!kg||!cm||cm<120){er.hidden=false;return;}er.hidden=true;
+  const bmr=10*kg+6.25*cm-5*edad+(st.sexo==='h'?5:-161);
+  const tdee=bmr*+document.getElementById('act').value;
+  const f={perder:.8,mant:1,ganar:1.1}[st.obj];
+  const piso=st.sexo==='h'?1500:1200;
+  let kcal=Math.max(tdee*f,piso);
+  const proG=(st.obj==='mant'?1.6:2.0)*Math.min(kg,(cm-100)*1.1); // proteína sobre peso ajustado si hay mucho exceso
+  const graG=kcal*.27/9;
+  const carG=Math.max((kcal-proG*4-graG*9)/4,0);
+  const agua=kg*35/1000;
+  set('kcal',n(kcal)+' kcal');
+  set('kcalTxt',{perder:'Déficit moderado (−20 %): baja de grasa sin pasar hambre.',mant:'Mantienes tu peso mientras mejoras tu composición.',ganar:'Superávit ligero (+10 %): músculo sin acumular grasa de más.'}[st.obj]);
+  set('pro',n(proG)+' g');set('car',n(carG)+' g');set('gra',n(graG)+' g');
+  set('bmr',n(bmr)+' kcal');set('tdee',n(tdee)+' kcal');
+  set('agua',agua.toFixed(1)+' litros (≈ '+Math.round(agua*1000/250)+' vasos)');
+  set('porc','≈ '+Math.round(proG/4)+' g, como 1 palma y media de pollo, carne, pescado, huevos o un batido de proteína.');
+  const msg='Hola Alex, usé la calculadora Sin Pausas. Mi meta es '+n(kcal)+' kcal y '+n(proG)+' g de proteína ('+{perder:'perder grasa',mant:'mantener',ganar:'ganar músculo'}[st.obj]+'). Quiero saber cómo aplicarlo a mi semana.';
+  document.getElementById('wa').href='https://wa.me/50242125447?text='+encodeURIComponent(msg);
+  const r=document.getElementById('res');r.hidden=false;r.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+}
+function edadEl(){return document.getElementById('edad')}
+function set(id,t){document.getElementById(id).textContent=t}
+</script>
+</body>
+</html>
