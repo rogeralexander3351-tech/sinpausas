@@ -57,6 +57,11 @@ input:focus,select:focus{outline:none;border-color:var(--tq)}
 .foot{margin-top:30px;padding-top:16px;border-top:2px solid var(--gold);display:flex;justify-content:space-between;align-items:end;gap:10px}
 .foot b{font:800 20px Archivo}
 .foot span{font-size:12px;color:var(--mute)}
+
+/* que nada empuje el ancho en celular */
+fieldset,.goal>div,.row2>div,.food>div,.hand .row>div,.score>div{min-width:0}
+input,select,textarea{min-width:0;max-width:100%}
+h1{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -120,6 +125,7 @@ input:focus,select:focus{outline:none;border-color:var(--tq)}
         <li><b>Mitad del plato verduras</b> en almuerzo y cena.</li>
         <li><b>Carbohidratos alrededor del entreno</b> (antes o después): tortilla, arroz, papa, fruta.</li>
         <li><b>Un vaso de agua</b> al despertar y antes de cada comida.</li>
+        <li><b>Arma tu plato con estos números</b> en la <a href="../comidas/" style="color:var(--tq);font-weight:700">calculadora de comidas</a>.</li>
       </ul>
     </div>
 
@@ -172,6 +178,7 @@ function calc(e){
   set('porc','≈ '+Math.round(proG/4)+' g, como 1 palma y media de pollo, carne, pescado, huevos o un batido de proteína.');
   const msg='Hola Alex, usé la calculadora Sin Pausas. Mi meta es '+n(kcal)+' kcal y '+n(proG)+' g de proteína ('+{perder:'perder grasa',mant:'mantener',ganar:'ganar músculo'}[st.obj]+'). Quiero saber cómo aplicarlo a mi semana.';
   document.getElementById('wa').href='https://wa.me/50242125447?text='+encodeURIComponent(msg);
+  try{localStorage.setItem('sinpausas_meta',JSON.stringify({kcal:Math.round(kcal),prot:Math.round(proG)}))}catch(e){}
   const r=document.getElementById('res');r.hidden=false;r.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
 }
 function edadEl(){return document.getElementById('edad')}

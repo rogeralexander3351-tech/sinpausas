@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora de Comidas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: herramienta de una columna; meta arriba, plato fijo abajo, lista de alimentos por categoría */
+:root{--ink:#0F2240;--tq:#0B8F84;--tq2:#2ED3C0;--gold:#B08D3E;--mute:#5B6B82;--line:#E2E7EE;--bg:#FFFFFF;--soft:#F4F7FA;--card:#FFFFFF;--warn:#B03A2E;--ok:#0B8F84;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ink:#EAF0F7;--mute:#9AA8BC;--line:#26364F;--bg:#0B1628;--soft:#111F36;--card:#14243D;--tq:#2ED3C0;--warn:#F08A7E;--ok:#2ED3C0;color-scheme:dark}}
+:root[data-theme="dark"]{--ink:#EAF0F7;--mute:#9AA8BC;--line:#26364F;--bg:#0B1628;--soft:#111F36;--card:#14243D;--tq:#2ED3C0;--warn:#F08A7E;--ok:#2ED3C0;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:680px;margin:0 auto;padding-block:26px 220px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.kicker{font:700 12px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);border-bottom:2px solid var(--gold);display:inline-block;padding-bottom:4px}
+h1{font:900 clamp(28px,7.5vw,42px)/1 Archivo,sans-serif;text-transform:uppercase;letter-spacing:-.02em;margin:14px 0 8px;text-wrap:balance}
+h1 span{color:var(--tq)}
+.lead{color:var(--mute);margin-bottom:18px}
+.goal{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:16px}
+.goal label{font:600 12px Inter;color:var(--mute);display:block;margin-bottom:4px}
+.goal input,.goal select{width:100%;font:600 16px Inter;padding:9px 10px;border:1.5px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink)}
+.goal small{grid-column:1/-1;color:var(--mute);font-size:12px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tabs button{flex:1;font:700 14px Inter;padding:10px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.tabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.search{width:100%;font:500 16px Inter;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);margin-bottom:10px}
+.cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cats button{font:600 13px Inter;padding:6px 11px;border-radius:20px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.cats button.on{border-color:var(--tq);color:var(--tq)}
+.food{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.food b{font-weight:600}
+.food small{display:block;color:var(--mute);font-size:12.5px}
+.qty{display:flex;align-items:center;gap:6px}
+.qty button{width:34px;height:34px;border-radius:9px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:700 18px Inter;cursor:pointer}
+.qty button.add{background:var(--tq);border-color:var(--tq);color:#fff}
+.qty span{min-width:22px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+.hand{display:grid;gap:10px}
+.hand .row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--soft)}
+.hand b{font:800 16px Archivo}
+.hand small{display:block;color:var(--mute);font-size:12.5px}
+.plate{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--ink);padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));box-shadow:0 -6px 20px rgba(15,34,64,.08)}
+.plate .in{max-width:680px;margin:0 auto}
+.bars{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.bar small{display:block;font:700 10.5px Inter;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.bar b{font:800 17px Archivo;font-variant-numeric:tabular-nums}
+.bar i{display:block;height:6px;border-radius:4px;background:var(--line);margin-top:4px;overflow:hidden}
+.bar i em{display:block;height:100%;background:var(--tq);width:0;transition:width .2s}
+.bar.over i em{background:var(--warn)}
+.verdict{margin-top:8px;font-size:13.5px;font-weight:600}
+.actions{display:flex;gap:8px;margin-top:8px}
+.actions a,.actions button{flex:1;text-align:center;text-decoration:none;font:800 13px Archivo;text-transform:uppercase;padding:10px;border-radius:10px;border:2px solid var(--tq);color:var(--tq);background:transparent;cursor:pointer}
+.actions a{background:var(--tq);color:#fff}
+.legal{font-size:12px;color:var(--mute);margin-top:18px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media (max-width:420px){.goal{grid-template-columns:1fr 1fr}.bars{grid-template-columns:repeat(2,1fr)}}
+
+/* que nada empuje el ancho en celular */
+fieldset,.goal>div,.row2>div,.food>div,.hand .row>div,.score>div{min-width:0}
+input,select,textarea{min-width:0;max-width:100%}
+h1{overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="kicker">Sistema Sin Pausas · Herramienta</span>
+  <h1>Calculadora de <span>comidas</span></h1>
+  <p class="lead">Arma tu plato con lo que vas a comer y mira si encaja con tu meta. Por alimento o, si estás fuera, con tu mano.</p>
+
+  <div class="goal">
+    <div><label for="kcal">Meta diaria (kcal)</label><input id="kcal" type="number" inputmode="numeric" value="1900"></div>
+    <div><label for="prot">Proteína diaria (g)</label><input id="prot" type="number" inputmode="numeric" value="150"></div>
+    <div><label for="meals">Comidas al día</label><select id="meals"><option>3</option><option selected>4</option><option>5</option></select></div>
+    <small id="goalNote">Valores de ejemplo. Usa los de tu plan o los de la calculadora de calorías.</small>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button id="tFood" class="on" role="tab" aria-selected="true">Por alimento</button>
+    <button id="tHand" role="tab" aria-selected="false">Con mi mano</button>
+  </div>
+
+  <section id="vFood">
+    <input id="q" class="search" type="search" placeholder="Buscar: pollo, tortilla, arroz…" aria-label="Buscar alimento">
+    <div class="cats" id="cats"></div>
+    <div id="list"></div>
+  </section>
+
+  <section id="vHand" hidden>
+    <div class="hand" id="hand"></div>
+    <p class="legal">Cada porción de mano es un promedio: palma ≈ 25 g de proteína, mano ahuecada ≈ 25 g de carbohidrato, pulgar ≈ 10 g de grasa, puño de verdura ≈ 25 kcal.</p>
+  </section>
+
+  <p class="legal">Valores aproximados por porción. Las marcas y la forma de cocinar cambian los números; úsalos como guía, no como cifra exacta.</p>
+</div>
+
+<div class="plate" aria-live="polite">
+  <div class="in">
+    <div class="bars">
+      <div class="bar" id="bK"><small>Calorías</small><b id="vK">0</b><i><em></em></i></div>
+      <div class="bar" id="bP"><small>Proteína</small><b id="vP">0 g</b><i><em></em></i></div>
+      <div class="bar"><small>Carbos</small><b id="vC">0 g</b></div>
+      <div class="bar"><small>Grasa</small><b id="vG">0 g</b></div>
+    </div>
+    <div class="verdict" id="verdict">Agrega alimentos para ver tu plato.</div>
+    <div class="actions"><button id="clear" type="button">Vaciar plato</button><a id="wa" href="https://wa.me/50242125447" target="_blank" rel="noopener">Mandar a mi coach</a></div>
+  </div>
+</div>
+
+<script>
+// [nombre, porción, kcal, proteína, carbos, grasa, categoría]
+const F=[
+["Pechuga de pollo a la plancha","1 palma (120 g)",198,37,0,4.3,"Proteínas"],
+["Carne de res magra asada","1 palma (120 g)",250,31,0,13,"Proteínas"],
+["Pescado blanco (tilapia)","1 palma (120 g)",154,31,0,3.2,"Proteínas"],
+["Salmón","1 palma (120 g)",250,25,0,16,"Proteínas"],
+["Atún en agua","1 lata escurrida (120 g)",130,29,0,1,"Proteínas"],
+["Huevo entero","1 grande",72,6.3,0.4,4.8,"Proteínas"],
+["Claras de huevo","3 claras",51,10.8,0.7,0.2,"Proteínas"],
+["Carne molida 90/10","1 palma (120 g)",260,30,0,15,"Proteínas"],
+["Lomo de cerdo","1 palma (120 g)",230,32,0,10,"Proteínas"],
+["Camarones","1 palma (120 g)",120,28,0,1.5,"Proteínas"],
+["Batido de proteína (whey)","1 medida (30 g)",120,24,3,1.5,"Proteínas"],
+["Yogur griego natural","1 taza (170 g)",100,17,6,0.7,"Lácteos"],
+["Leche descremada","1 taza",90,8.5,12,0.3,"Lácteos"],
+["Leche entera","1 taza",150,8,12,8,"Lácteos"],
+["Queso fresco","1 rebanada (30 g)",80,5,1,6,"Lácteos"],
+["Requesón","1/2 taza",100,12,4,4,"Lácteos"],
+["Tortilla de maíz","1 mediana",60,1.5,12,0.8,"Carbohidratos"],
+["Arroz blanco cocido","1 taza",205,4.3,45,0.4,"Carbohidratos"],
+["Frijoles negros cocidos (parados)","1/2 taza",114,7.6,20,0.5,"Carbohidratos"],
+["Frijoles volteados","1/2 taza",180,7,20,8,"Carbohidratos"],
+["Papa cocida o al horno","1 mediana (150 g)",130,3,30,0.2,"Carbohidratos"],
+["Camote cocido","1 mediano (130 g)",115,2,27,0.1,"Carbohidratos"],
+["Plátano maduro cocido","1/2 plátano",110,1,29,0.3,"Carbohidratos"],
+["Plátano frito","1/2 plátano",210,1,29,10,"Carbohidratos"],
+["Pan francés","1 unidad",140,4.5,27,1.5,"Carbohidratos"],
+["Pan integral","1 rebanada",80,4,14,1,"Carbohidratos"],
+["Pasta cocida","1 taza",220,8,43,1.3,"Carbohidratos"],
+["Avena en hojuelas (cruda)","1/2 taza (40 g)",150,5,27,2.5,"Carbohidratos"],
+["Banano","1 mediano",105,1.3,27,0.4,"Frutas y verduras"],
+["Manzana","1 mediana",95,0.5,25,0.3,"Frutas y verduras"],
+["Papaya o melón","1 taza",60,0.8,15,0.2,"Frutas y verduras"],
+["Fresas","1 taza",50,1,12,0.5,"Frutas y verduras"],
+["Verduras cocidas o ensalada","1 taza",30,2,6,0.2,"Frutas y verduras"],
+["Aguacate","1/4 de aguacate (50 g)",80,1,4,7.5,"Grasas"],
+["Aceite de oliva o cocina","1 cucharada",120,0,0,14,"Grasas"],
+["Crema","1 cucharada",50,0.5,1,5,"Grasas"],
+["Mantequilla de maní","1 cucharada",95,3.5,3.5,8,"Grasas"],
+["Nueces o almendras","1 puño chico (28 g)",165,6,6,14,"Grasas"],
+["Mayonesa","1 cucharada",95,0,0,10,"Grasas"],
+["Café negro","1 taza",2,0.3,0,0,"Bebidas"],
+["Gaseosa normal","1 lata (355 ml)",140,0,39,0,"Bebidas"],
+["Jugo de naranja","1 vaso (240 ml)",110,2,26,0.5,"Bebidas"],
+["Cerveza","1 lata (355 ml)",150,1.6,13,0,"Bebidas"],
+["Hamburguesa sencilla","1 unidad",300,15,33,12,"Comida rápida"],
+["Papas fritas","Porción mediana",340,4,44,16,"Comida rápida"],
+["Pizza de queso","1 rebanada",285,12,36,10,"Comida rápida"],
+["Taco de pollo (tortilla de maíz)","1 taco",150,10,13,6,"Comida rápida"],
+["Pollo frito","1 pieza (pierna o muslo)",280,20,8,18,"Comida rápida"],
+["Pan dulce","1 unidad",250,4,38,9,"Comida rápida"]
+];
+const HAND=[
+["Palma de proteína","Pollo, carne, pescado, huevos",130,25,2,3],
+["Mano ahuecada de carbohidrato","Arroz, papa, tortillas, pan, fruta",120,3,25,1],
+["Puño de verduras","Ensalada, verduras cocidas",25,1.5,5,0],
+["Pulgar de grasa","Aguacate, aceite, queso, nueces",100,1,1,10]
+];
+const qty={}, hq=[0,0,0,0];
+let cat="Todos", mode="food";
+const $=id=>document.getElementById(id);
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+// Meta guardada por la calculadora de calorías (mismo sitio)
+try{const m=JSON.parse(store("sinpausas_meta")||"null"); if(m&&m.kcal){$("kcal").value=m.kcal;$("prot").value=m.prot;$("goalNote").textContent="Meta tomada de tu calculadora de calorías. Puedes cambiarla.";}}catch(e){}
+const cats=["Todos",...new Set(F.map(f=>f[6]))];
+$("cats").innerHTML=cats.map(c=>`<button type="button" data-c="${c}" class="${c===cat?'on':''}">${c}</button>`).join("");
+$("cats").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;cat=b.dataset.c;[...$("cats").children].forEach(x=>x.classList.toggle("on",x===b));render();});
+$("q").addEventListener("input",render);
+function render(){
+  const q=$("q").value.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+  $("list").innerHTML=F.map((f,i)=>({f,i})).filter(({f})=>(cat==="Todos"||f[6]===cat)&&(!q||f[0].toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").includes(q))).map(({f,i})=>
+    `<div class="food"><div><b>${f[0]}</b><small>${f[1]} · ${f[2]} kcal · ${f[3]} g proteína</small></div><div class="qty"><button type="button" aria-label="Quitar ${f[0]}" data-i="${i}" data-d="-1">−</button><span>${qty[i]||0}</span><button type="button" class="add" aria-label="Agregar ${f[0]}" data-i="${i}" data-d="1">+</button></div></div>`).join("")||'<p class="legal">No encontré ese alimento. Usa la pestaña "Con mi mano".</p>';
+}
+$("list").addEventListener("click",e=>{const b=e.target.closest("button[data-i]");if(!b)return;const i=+b.dataset.i;qty[i]=Math.max(0,(qty[i]||0)+ +b.dataset.d);render();total();});
+$("hand").innerHTML=HAND.map((h,i)=>`<div class="row"><div><b>${h[0]}</b><small>${h[1]}</small></div><div class="qty"><button type="button" aria-label="Quitar" data-h="${i}" data-d="-1">−</button><span id="h${i}">0</span><button type="button" class="add" aria-label="Agregar" data-h="${i}" data-d="1">+</button></div></div>`).join("");
+$("hand").addEventListener("click",e=>{const b=e.target.closest("button[data-h]");if(!b)return;const i=+b.dataset.h;hq[i]=Math.max(0,hq[i]+ +b.dataset.d);$("h"+i).textContent=hq[i];total();});
+function setMode(m){mode=m;$("vFood").hidden=m!=="food";$("vHand").hidden=m!=="hand";$("tFood").classList.toggle("on",m==="food");$("tHand").classList.toggle("on",m==="hand");$("tFood").setAttribute("aria-selected",m==="food");$("tHand").setAttribute("aria-selected",m==="hand");total();}
+$("tFood").onclick=()=>setMode("food");$("tHand").onclick=()=>setMode("hand");
+["kcal","prot","meals"].forEach(id=>$(id).addEventListener("input",total));
+function total(){
+  let K=0,P=0,C=0,G=0,items=[];
+  if(mode==="food"){for(const i in qty){const n=qty[i];if(!n)continue;const f=F[i];K+=f[2]*n;P+=f[3]*n;C+=f[4]*n;G+=f[5]*n;items.push(`${n}× ${f[0]}`);}}
+  else{HAND.forEach((h,i)=>{const n=hq[i];if(!n)return;K+=h[2]*n;P+=h[3]*n;C+=h[4]*n;G+=h[5]*n;items.push(`${n}× ${h[0].toLowerCase()}`);});}
+  const m=+$("meals").value||4, tk=(+$("kcal").value||1900)/m, tp=(+$("prot").value||150)/m;
+  $("vK").textContent=Math.round(K)+" / "+Math.round(tk);$("vP").textContent=Math.round(P)+" / "+Math.round(tp)+" g";$("vC").textContent=Math.round(C)+" g";$("vG").textContent=Math.round(G)+" g";
+  $("bK").querySelector("em").style.width=Math.min(100,K/tk*100)+"%";$("bP").querySelector("em").style.width=Math.min(100,P/tp*100)+"%";
+  $("bK").classList.toggle("over",K>tk*1.15);
+  let v;
+  if(!K) v="Agrega alimentos para ver tu plato.";
+  else if(K>tk*1.15) v="Te pasaste "+Math.round(K-tk)+" kcal de esta comida. Quita un carbohidrato o una grasa.";
+  else if(P<tp*0.7) v="Te falta proteína: agrega "+Math.round(tp-P)+" g (≈ "+(Math.round((tp-P)/25*2)/2)+" palma).";
+  else if(K<tk*0.7) v="Plato ligero. Si te quedas con hambre, suma verdura o un carbohidrato.";
+  else v="✓ Plato equilibrado para tu meta.";
+  $("verdict").textContent=v;
+  const msg="Hola Alex, este es mi plato: "+(items.join(", ")||"(vacío)")+". Total: "+Math.round(K)+" kcal y "+Math.round(P)+" g de proteína. ¿Cómo lo ves?";
+  $("wa").href="https://wa.me/50242125447?text="+encodeURIComponent(msg);
+}
+$("clear").onclick=()=>{for(const k in qty)delete qty[k];hq.fill(0);HAND.forEach((h,i)=>$("h"+i).textContent=0);render();total();};
+// Plato de ejemplo para que la herramienta se vea en uso al abrir
+qty[0]=1;qty[16]=2;qty[32]=1;qty[33]=1;
+render();total();
+</script>
+</body>
+</html>

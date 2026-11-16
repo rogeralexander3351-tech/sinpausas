@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Check-in Sin Pausas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: formulario de una columna; puntaje de la semana arriba como resultado vivo; historial abajo */
+:root{--ink:#0F2240;--tq:#0B8F84;--gold:#B08D3E;--mute:#5B6B82;--line:#E2E7EE;--bg:#FFFFFF;--soft:#F4F7FA;--card:#FFFFFF;--g:#0B8F84;--y:#B08D3E;--r:#B03A2E;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ink:#EAF0F7;--mute:#9AA8BC;--line:#26364F;--bg:#0B1628;--soft:#111F36;--card:#14243D;--tq:#2ED3C0;--g:#2ED3C0;--y:#D9B562;--r:#F08A7E;color-scheme:dark}}
+:root[data-theme="dark"]{--ink:#EAF0F7;--mute:#9AA8BC;--line:#26364F;--bg:#0B1628;--soft:#111F36;--card:#14243D;--tq:#2ED3C0;--g:#2ED3C0;--y:#D9B562;--r:#F08A7E;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:620px;margin:0 auto;padding-block:26px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.kicker{font:700 12px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);border-bottom:2px solid var(--gold);display:inline-block;padding-bottom:4px}
+h1{font:900 clamp(28px,7.5vw,42px)/1 Archivo,sans-serif;text-transform:uppercase;letter-spacing:-.02em;margin:14px 0 8px}
+h1 span{color:var(--tq)}
+.lead{color:var(--mute);margin-bottom:18px}
+.score{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;border:2px solid var(--ink);border-radius:16px;padding:16px;margin-bottom:18px}
+.dial{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;font:900 28px Archivo;color:#fff;background:var(--g);font-variant-numeric:tabular-nums}
+.score b{font:800 18px Archivo;display:block}
+.score p{color:var(--mute);font-size:14px}
+form{display:grid;gap:14px}
+fieldset{border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px;background:var(--soft)}
+legend{font:800 15px Archivo;padding:0 6px}
+label{font:600 13.5px Inter;display:block;margin-bottom:5px}
+input,select,textarea{width:100%;font:500 16px Inter;padding:10px 11px;border:1.5px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink)}
+textarea{min-height:64px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card)}
+.seg button{flex:1;border:0;background:transparent;color:var(--ink);font:700 14px Inter;padding:10px 4px;cursor:pointer}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.send{display:block;text-align:center;text-decoration:none;background:var(--tq);color:#fff;font:800 16px Archivo;text-transform:uppercase;padding:15px;border-radius:12px;border:0;cursor:pointer;width:100%}
+.hist{margin-top:22px}
+.hist h2{font:800 18px Archivo;margin-bottom:8px}
+.hist table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+.hist th{font:700 11px Inter;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);text-align:left;padding:6px;border-bottom:2px solid var(--ink)}
+.hist td{padding:7px 6px;border-bottom:1px solid var(--line)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.note{font-size:12px;color:var(--mute);margin-top:10px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* que nada empuje el ancho en celular */
+fieldset,.goal>div,.row2>div,.food>div,.hand .row>div,.score>div{min-width:0}
+input,select,textarea{min-width:0;max-width:100%}
+h1{overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="kicker">Sistema Sin Pausas · Domingo</span>
+  <h1>Tu <span>check-in</span> semanal</h1>
+  <p class="lead">Dos minutos. Llénalo cada domingo y mándamelo: con esto ajusto tu plan de la semana que viene.</p>
+
+  <div class="score" aria-live="polite">
+    <div class="dial" id="dial">–</div>
+    <div><b id="sTitle">Tu semana</b><p id="sText">Llena los datos y aquí ves tu puntaje de cumplimiento.</p></div>
+  </div>
+
+  <form id="f" onsubmit="return false">
+    <fieldset>
+      <legend>Tus datos</legend>
+      <div class="row2">
+        <div><label for="nombre">Tu nombre</label><input id="nombre" autocomplete="given-name" placeholder="Luis"></div>
+        <div><label for="semana">Semana del programa</label><select id="semana"></select></div>
+      </div>
+      <div class="row2">
+        <div><label for="peso">Peso de hoy (lb)</label><input id="peso" type="number" step="0.1" inputmode="decimal" placeholder="185.4"></div>
+        <div><label for="cintura">Cintura (pulgadas, opcional)</label><input id="cintura" type="number" step="0.1" inputmode="decimal" placeholder="36"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Lo que hiciste</legend>
+      <div><label>Sesiones de entreno (cuentan las de 20 min)</label><div class="seg" data-k="ses"><button type="button" data-v="0">0</button><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3" class="on">3</button><button type="button" data-v="4">4+</button></div></div>
+      <div><label>¿Cuántas comidas siguieron tu plan?</label><div class="seg" data-k="com"><button type="button" data-v="25">Pocas</button><button type="button" data-v="50">La mitad</button><button type="button" data-v="80" class="on">Casi todas</button><button type="button" data-v="100">Todas</button></div></div>
+      <div class="row2">
+        <div><label for="agua">Vasos de agua por día</label><input id="agua" type="number" inputmode="numeric" value="8"></div>
+        <div><label for="sueno">Horas de sueño promedio</label><input id="sueno" type="number" step="0.5" inputmode="decimal" value="7"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Cómo te sentiste (1 a 5)</legend>
+      <div><label>Energía</label><div class="seg" data-k="ene"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4" class="on">4</button><button type="button" data-v="5">5</button></div></div>
+      <div><label>Hambre (1 = nada, 5 = mucha)</label><div class="seg" data-k="ham"><button type="button" data-v="1">1</button><button type="button" data-v="2" class="on">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button></div></div>
+      <div><label>¿Qué tan complicada estuvo tu semana?</label><div class="seg" data-k="sem"><button type="button" data-v="normal" class="on">Normal</button><button type="button" data-v="pesada">Pesada</button><button type="button" data-v="imposible">Imposible</button></div></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Para tu coach</legend>
+      <div><label for="bien">Lo que mejor te salió</label><textarea id="bien" placeholder="Hice mis 3 sesiones aunque viajé el jueves"></textarea></div>
+      <div><label for="costo">Lo que más te costó</label><textarea id="costo" placeholder="Las cenas cuando llego tarde"></textarea></div>
+      <div><label for="preg">Pregunta o algo que quieras cambiar</label><textarea id="preg" placeholder="¿Puedo cambiar el día B por bicicleta?"></textarea></div>
+    </fieldset>
+
+    <a class="send" id="send" href="https://wa.me/50242125447" target="_blank" rel="noopener">Mandar mi check-in por WhatsApp</a>
+    <p class="note">Al tocar el botón se abre WhatsApp con tu resumen listo para enviar. Tu historial se guarda solo en este teléfono.</p>
+  </form>
+
+  <section class="hist" id="hist" hidden>
+    <h2>Tus semanas</h2>
+    <div style="overflow-x:auto"><table><thead><tr><th>Semana</th><th>Peso</th><th>Sesiones</th><th>Puntaje</th></tr></thead><tbody id="hrows"></tbody></table></div>
+  </section>
+</div>
+<script>
+const st={ses:3,com:80,ene:4,ham:2,sem:"normal"};
+const $=id=>document.getElementById(id);
+for(let i=1;i<=13;i++){const o=document.createElement("option");o.value=i;o.textContent="Semana "+i+(i===13?" (cierre)":"");$("semana").appendChild(o);}
+document.querySelectorAll(".seg").forEach(s=>s.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;s.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));const v=b.dataset.v;st[s.dataset.k]=isNaN(v)?v:+v;upd();}));
+document.querySelectorAll("input,select,textarea").forEach(el=>el.addEventListener("input",upd));
+function load(){try{return JSON.parse(localStorage.getItem("sinpausas_checkins")||"[]")}catch(e){return[]}}
+function save(h){try{localStorage.setItem("sinpausas_checkins",JSON.stringify(h))}catch(e){}}
+try{const n=localStorage.getItem("sinpausas_nombre");if(n)$("nombre").value=n;const h=load();if(h.length)$("semana").value=Math.min(13,h[h.length-1].w+1);}catch(e){}
+function score(){
+  const ses=Math.min(st.ses,3)/3*40, com=st.com/100*35, agua=Math.min((+$("agua").value||0)/8,1)*12.5, sue=Math.min((+$("sueno").value||0)/7,1)*12.5;
+  return Math.round(ses+com+agua+sue);
+}
+function upd(){
+  const s=score(), d=$("dial"); d.textContent=s;
+  let col="var(--g)",t="Semana ganada",x="Vas en el camino. Mándamelo y subimos un poco la exigencia.";
+  if(s<60){col="var(--r)";t="Semana difícil";x="No pasa nada: me lo mandas y ajustamos el plan para que la que viene sí quepa en tu agenda.";}
+  else if(s<80){col="var(--y)";t="Semana a medias";x="Bien que no la soltaste. Veamos qué fue lo que más costó.";}
+  if(st.sem==="imposible"){t="Semana imposible";x="Activamos el modo mínimo: 2 sesiones de 20 min, proteína en cada comida y tu agua.";}
+  d.style.background=col;$("sTitle").textContent=t+" · "+s+"/100";$("sText").textContent=x;
+  const n=$("nombre").value.trim()||"[nombre]";
+  const L=["*Check-in Sin Pausas* · "+n+" · Semana "+$("semana").value,
+   "Puntaje: "+s+"/100 ("+t+")",
+   "Peso: "+($("peso").value||"—")+" lb"+($("cintura").value?" · Cintura: "+$("cintura").value+" in":""),
+   "Sesiones: "+(st.ses>=4?"4+":st.ses)+" · Comidas del plan: "+st.com+" %",
+   "Agua: "+($("agua").value||"—")+" vasos · Sueño: "+($("sueno").value||"—")+" h",
+   "Energía: "+st.ene+"/5 · Hambre: "+st.ham+"/5 · Semana: "+st.sem];
+  if($("bien").value.trim())L.push("Lo mejor: "+$("bien").value.trim());
+  if($("costo").value.trim())L.push("Me costó: "+$("costo").value.trim());
+  if($("preg").value.trim())L.push("Pregunta: "+$("preg").value.trim());
+  $("send").href="https://wa.me/50242125447?text="+encodeURIComponent(L.join("\n"));
+}
+$("send").addEventListener("click",()=>{
+  try{localStorage.setItem("sinpausas_nombre",$("nombre").value.trim())}catch(e){}
+  const h=load().filter(r=>r.w!==+$("semana").value);
+  h.push({w:+$("semana").value,p:$("peso").value,s:st.ses,sc:score()});h.sort((a,b)=>a.w-b.w);save(h);hist();
+});
+function hist(){
+  const h=load(); $("hist").hidden=!h.length;
+  $("hrows").innerHTML=h.map(r=>{const c=r.sc<60?"var(--r)":r.sc<80?"var(--y)":"var(--g)";return `<tr><td>Semana ${r.w}</td><td>${r.p||"—"} lb</td><td>${r.s>=4?"4+":r.s}</td><td><span class="dot" style="background:${c}"></span>${r.sc}</td></tr>`}).join("");
+}
+upd();hist();
+</script>
+</body>
+</html>
