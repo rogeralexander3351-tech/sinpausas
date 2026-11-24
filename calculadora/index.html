@@ -175,7 +175,7 @@ function calc(e){
   set('pro',n(proG)+' g');set('car',n(carG)+' g');set('gra',n(graG)+' g');
   set('bmr',n(bmr)+' kcal');set('tdee',n(tdee)+' kcal');
   set('agua',agua.toFixed(1)+' litros (≈ '+Math.round(agua*1000/250)+' vasos)');
-  set('porc','≈ '+Math.round(proG/4)+' g, como 1 palma y media de pollo, carne, pescado, huevos o un batido de proteína.');
+  set('porc','≈ '+Math.round(proG/4)+' g, como 1 porción y media (del tamaño de tu mano) de pollo, carne, pescado, huevos o un batido de proteína.');
   const msg='Hola Alex, usé la calculadora Sin Pausas. Mi meta es '+n(kcal)+' kcal y '+n(proG)+' g de proteína ('+{perder:'perder grasa',mant:'mantener',ganar:'ganar músculo'}[st.obj]+'). Quiero saber cómo aplicarlo a mi semana.';
   document.getElementById('wa').href='https://wa.me/50242125447?text='+encodeURIComponent(msg);
   try{localStorage.setItem('sinpausas_meta',JSON.stringify({kcal:Math.round(kcal),prot:Math.round(proG)}))}catch(e){}

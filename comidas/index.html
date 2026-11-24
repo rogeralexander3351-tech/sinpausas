@@ -88,7 +88,7 @@ h1{overflow-wrap:anywhere}
 
   <section id="vHand" hidden>
     <div class="hand" id="hand"></div>
-    <p class="legal">Cada porción de mano es un promedio: palma ≈ 25 g de proteína, mano ahuecada ≈ 25 g de carbohidrato, pulgar ≈ 10 g de grasa, puño de verdura ≈ 25 kcal.</p>
+    <p class="legal">Cada porción de mano es un promedio: porción de proteína (tamaño de tu mano) ≈ 25 g, mano ahuecada ≈ 25 g de carbohidrato, pulgar ≈ 10 g de grasa, puño de verdura ≈ 25 kcal.</p>
   </section>
 
   <p class="legal">Valores aproximados por porción. Las marcas y la forma de cocinar cambian los números; úsalos como guía, no como cifra exacta.</p>
@@ -110,16 +110,16 @@ h1{overflow-wrap:anywhere}
 <script>
 // [nombre, porción, kcal, proteína, carbos, grasa, categoría]
 const F=[
-["Pechuga de pollo a la plancha","1 palma (120 g)",198,37,0,4.3,"Proteínas"],
-["Carne de res magra asada","1 palma (120 g)",250,31,0,13,"Proteínas"],
-["Pescado blanco (tilapia)","1 palma (120 g)",154,31,0,3.2,"Proteínas"],
-["Salmón","1 palma (120 g)",250,25,0,16,"Proteínas"],
+["Pechuga de pollo a la plancha","1 porción (120 g)",198,37,0,4.3,"Proteínas"],
+["Carne de res magra asada","1 porción (120 g)",250,31,0,13,"Proteínas"],
+["Pescado blanco (tilapia)","1 porción (120 g)",154,31,0,3.2,"Proteínas"],
+["Salmón","1 porción (120 g)",250,25,0,16,"Proteínas"],
 ["Atún en agua","1 lata escurrida (120 g)",130,29,0,1,"Proteínas"],
 ["Huevo entero","1 grande",72,6.3,0.4,4.8,"Proteínas"],
 ["Claras de huevo","3 claras",51,10.8,0.7,0.2,"Proteínas"],
-["Carne molida 90/10","1 palma (120 g)",260,30,0,15,"Proteínas"],
-["Lomo de cerdo","1 palma (120 g)",230,32,0,10,"Proteínas"],
-["Camarones","1 palma (120 g)",120,28,0,1.5,"Proteínas"],
+["Carne molida 90/10","1 porción (120 g)",260,30,0,15,"Proteínas"],
+["Lomo de cerdo","1 porción (120 g)",230,32,0,10,"Proteínas"],
+["Camarones","1 porción (120 g)",120,28,0,1.5,"Proteínas"],
 ["Batido de proteína (whey)","1 medida (30 g)",120,24,3,1.5,"Proteínas"],
 ["Yogur griego natural","1 taza (170 g)",100,17,6,0.7,"Lácteos"],
 ["Leche descremada","1 taza",90,8.5,12,0.3,"Lácteos"],
@@ -161,7 +161,7 @@ const F=[
 ["Pan dulce","1 unidad",250,4,38,9,"Comida rápida"]
 ];
 const HAND=[
-["Palma de proteína","Pollo, carne, pescado, huevos",130,25,2,3],
+["Porción de proteína","Del tamaño de tu mano: pollo, carne, pescado, huevos",130,25,2,3],
 ["Mano ahuecada de carbohidrato","Arroz, papa, tortillas, pan, fruta",120,3,25,1],
 ["Puño de verduras","Ensalada, verduras cocidas",25,1.5,5,0],
 ["Pulgar de grasa","Aguacate, aceite, queso, nueces",100,1,1,10]
@@ -198,7 +198,7 @@ function total(){
   let v;
   if(!K) v="Agrega alimentos para ver tu plato.";
   else if(K>tk*1.15) v="Te pasaste "+Math.round(K-tk)+" kcal de esta comida. Quita un carbohidrato o una grasa.";
-  else if(P<tp*0.7) v="Te falta proteína: agrega "+Math.round(tp-P)+" g (≈ "+(Math.round((tp-P)/25*2)/2)+" palma).";
+  else if(P<tp*0.7) v="Te falta proteína: agrega "+Math.round(tp-P)+" g (≈ "+(Math.round((tp-P)/25*2)/2)+" porción).";
   else if(K<tk*0.7) v="Plato ligero. Si te quedas con hambre, suma verdura o un carbohidrato.";
   else v="✓ Plato equilibrado para tu meta.";
   $("verdict").textContent=v;
